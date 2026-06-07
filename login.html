@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}EduTJ — Login{% endblock %}
+
+{% block nav_buttons %}
+<a href="/" class="nav-back" data-en="← Back to Site" data-ru="← На сайт" data-tj="← Ба сайт">← Back to Site</a>
+{% endblock %}
+
+{% block extra_css %}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:20px}
+.login-box{background:var(--card);border-radius:18px;padding:44px 36px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,.08)}
+.login-box h2{font-family:'Playfair Display',serif;font-size:24px;color:var(--accent-dark);text-align:center;margin-bottom:4px}
+.login-sub{text-align:center;font-size:13px;color:var(--text-sub);margin-bottom:28px}
+@media(max-width:600px){.login-box{padding:28px 20px}}
+{% endblock %}
+
+{% block content %}
+<div class="login-wrap">
+  <div class="login-box">
+    <h2 data-en="Center Login" data-ru="Вход для центров" data-tj="Вуруди марказ">Center Login</h2>
+    <div class="login-sub" data-en="Log in to manage your center's profile and courses" data-ru="Войдите для управления профилем и курсами вашего центра" data-tj="Ворид шавед барои идоракунии профил ва курсҳои маркази шумо">Log in to manage your center's profile and courses</div>
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label class="form-label" data-en="Login" data-ru="Логин" data-tj="Логин">Login</label>
+        <input class="form-input" type="text" name="login" required placeholder="Your login" data-en="Your login" data-ru="Ваш логин" data-tj="Логини шумо" autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Password" data-ru="Пароль" data-tj="Парол">Password</label>
+        <input class="form-input" type="password" name="password" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:8px" data-en="Log In" data-ru="Войти" data-tj="Ворид шудан">Log In</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
