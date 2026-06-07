@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}EduTJ — Dashboard{% endblock %}
+
+{% block nav_buttons %}
+<a href="/" class="nav-back" data-en="View Site" data-ru="Сайт" data-tj="Сайт">View Site</a>
+<form action="/logout" method="POST" style="display:inline"><button type="submit" class="nav-btn" style="border-color:var(--border);color:var(--text-sub)" data-en="Log Out" data-ru="Выйти" data-tj="Баромадан">Log Out</button></form>
+{% endblock %}
+
+{% block extra_css %}
+.dash-header{max-width:880px;margin:0 auto;padding:32px 32px 0}
+.dash-welcome{font-family:'Playfair Display',serif;font-size:26px;color:var(--accent-dark);margin-bottom:4px}
+.dash-sub{font-size:13px;color:var(--text-sub);margin-bottom:28px}
+.tabs{display:flex;gap:4px;max-width:880px;margin:0 auto;padding:0 32px;border-bottom:2px solid var(--border)}
+.tab{padding:10px 18px;font-size:14px;font-weight:600;color:var(--text-sub);cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;font-family:inherit;transition:all .2s}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}.tab:hover{color:var(--accent)}
+.dash-content{max-width:880px;margin:0 auto;padding:24px 32px 80px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.info-grid .full{grid-column:1/-1}
+.course-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px;position:relative}
+.course-card:hover{box-shadow:0 2px 16px rgba(0,0,0,.06)}
+.course-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.course-grid .full{grid-column:1/-1}
+.course-num{position:absolute;top:-9px;left:18px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:5px}
+.teacher-sec{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border)}
+.teacher-label{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.empty-state{text-align:center;padding:40px 0;color:var(--text-sub)}
+.empty-state .emoji{font-size:36px;margin-bottom:10px}
+.pw-section{margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.pw-section h3{font-size:15px;font-weight:700;margin-bottom:14px}
+.pw-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:500px}
+@media(max-width:600px){
+  .info-grid,.course-grid,.pw-grid{grid-template-columns:1fr}
+  .info-grid .full,.course-grid .full{grid-column:1}
+  .dash-header,.dash-content,.tabs{padding-left:16px;padding-right:16px}
+}
+{% endblock %}
+
+{% block content %}
+<div class="dash-header">
+  <div class="dash-welcome">{{ center.name }}</div>
+  <div class="dash-sub" data-en="Manage your center's information and courses" data-ru="Управляйте информацией и курсами вашего центра" data-tj="Маълумот ва курсҳои маркази худро идора кунед">Manage your center's information and courses</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('info',this)" data-en="Center Info" data-ru="О центре" data-tj="Дар бораи марказ">Center Info</button>
+  <button class="tab" onclick="switchTab('courses',this)" data-en="Courses ({{ courses|length }})" data-ru="Курсы ({{ courses|length }})" data-tj="Курсҳо ({{ courses|length }})">Courses ({{ courses|length }})</button>
+  <button class="tab" onclick="switchTab('settings',this)" data-en="Settings" data-ru="Настройки" data-tj="Танзимот">Settings</button>
+</div>
+
+<div class="dash-content">
+  <div class="tab-panel active" id="tab-info">
+    <form method="POST" action="/dashboard/save-info">
+      <div class="info-grid">
+        <div><label class="form-label" data-en="Center Name" data-ru="Название центра" data-tj="Номи марказ">Center Name</label><input class="form-input" name="name" value="{{ center.name }}"></div>
+        <div><label class="form-label" data-en="City" data-ru="Город" data-tj="Шаҳр">City</label><input class="form-input" name="city" value="{{ center.city }}"></div>
+        <div class="full"><label class="form-label" data-en="Address" data-ru="Адрес" data-tj="Суроға">Address</label><input class="form-input" name="address" value="{{ center.address }}"></div>
+        <div><label class="form-label" data-en="Phone" data-ru="Телефон" data-tj="Телефон">Phone</label><input class="form-input" name="phone" value="{{ center.phone }}" placeholder="+992 ..."></div>
+        <div><label class="form-label" data-en="Working Hours" data-ru="Время работы" data-tj="Вақти корӣ">Working Hours</label><input class="form-input" name="hours" value="{{ center.hours }}"></div>
+        <div class="full"><label class="form-label" data-en="Description" data-ru="Описание" data-tj="Тавсиф">Description</label><textarea class="form-textarea" name="description" rows="3">{{ center.description }}</textarea></div>
+        <div><label class="form-label" data-en="Instagram" data-ru="Инстаграм" data-tj="Инстаграм">Instagram</label><input class="form-input" name="instagram" value="{{ center.instagram }}" placeholder="@handle"></div>
+        <div><label class="form-label" data-en="Telegram" data-ru="Телеграм" data-tj="Телеграм">Telegram</label><input class="form-input" name="telegram" value="{{ center.telegram }}" placeholder="@channel"></div>
+        <div class="full"><label class="form-label" data-en="Website" data-ru="Веб-сайт" data-tj="Вебсайт">Website</label><input class="form-input" name="website" value="{{ center.website }}" placeholder="https://your-website.com"></div>
+      </div>
+      <button type="submit" class="btn-primary" data-en="Save Changes" data-ru="Сохранить" data-tj="Нигоҳ доштан">Save Changes</button>
+    </form>
+  </div>
+
+  <div class="tab-panel" id="tab-courses">
+    {% if courses %}
+      {% for course in courses %}
+      <div class="course-card">
+        <div class="course-num">{{ loop.index }}</div>
+        <form method="POST" action="/dashboard/edit-course/{{ course.id }}">
+          <div class="course-grid">
+            <div><label class="form-label" data-en="Course Name" data-ru="Название курса" data-tj="Номи курс">Course Name</label><input class="form-input" name="course_name" value="{{ course.name }}"></div>
+            <div><label class="form-label" data-en="Price" data-ru="Цена" data-tj="Нарх">Price</label><input class="form-input" name="price" value="{{ course.price }}"></div>
+            <div><label class="form-label" data-en="Duration" data-ru="Длительность" data-tj="Давомнокӣ">Duration</label><input class="form-input" name="duration" value="{{ course.duration }}"></div>
+            <div><label class="form-label" data-en="Location" data-ru="Расположение" data-tj="Ҷойгиршавӣ">Location</label><input class="form-input" name="location" value="{{ course.location }}"></div>
+            <div class="full"><label class="form-label" data-en="Description" data-ru="Описание" data-tj="Тавсиф">Description</label><textarea class="form-textarea" name="course_description" rows="2">{{ course.description }}</textarea></div>
+          </div>
+          <div class="teacher-sec">
+            <div class="teacher-label" data-en="👤 Teacher" data-ru="👤 Преподаватель" data-tj="👤 Муаллим">👤 Teacher</div>
+            <div class="course-grid">
+              <div><label class="form-label" data-en="Name" data-ru="Имя" data-tj="Ном">Name</label><input class="form-input" name="teacher_name" value="{{ course.teacher_name }}"></div>
+              <div><label class="form-label" data-en="Phone" data-ru="Телефон" data-tj="Телефон">Phone</label><input class="form-input" name="teacher_phone" value="{{ course.teacher_phone }}"></div>
+              <div><label class="form-label" data-en="Social Media" data-ru="Соцсети" data-tj="Шабакаҳои иҷтимоӣ">Social Media</label><input class="form-input" name="teacher_social" value="{{ course.teacher_social }}"></div>
+              <div><label class="form-label">LinkedIn</label><input class="form-input" name="teacher_linkedin" value="{{ course.teacher_linkedin }}"></div>
+            </div>
+          </div>
+          <div class="btn-row"><button type="submit" class="btn-primary btn-small" data-en="Save Course" data-ru="Сохранить курс" data-tj="Нигоҳ доштан">Save Course</button></div>
+        </form>
+        <form method="POST" action="/dashboard/delete-course/{{ course.id }}" style="position:absolute;top:10px;right:10px" onsubmit="return confirm('Remove?')">
+          <button type="submit" class="btn-danger btn-small">×</button>
+        </form>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state"><div class="emoji">📚</div><div data-en="No courses yet. Add your first one!" data-ru="Пока нет курсов. Добавьте первый!" data-tj="Ҳанӯз курс нест. Аввалинро илова кунед!">No courses yet. Add your first one!</div></div>
+    {% endif %}
+
+    <div class="course-card" style="border:2px dashed var(--accent);background:var(--accent-light)">
+      <div class="course-num" style="background:var(--accent-dark)" data-en="+ New" data-ru="+ Новый" data-tj="+ Нав">+ New</div>
+      <form method="POST" action="/dashboard/add-course">
+        <div class="course-grid">
+          <div><label class="form-label" data-en="Course Name" data-ru="Название курса" data-tj="Номи курс">Course Name</label><input class="form-input" name="course_name" required></div>
+          <div><label class="form-label" data-en="Price" data-ru="Цена" data-tj="Нарх">Price</label><input class="form-input" name="price"></div>
+          <div><label class="form-label" data-en="Duration" data-ru="Длительность" data-tj="Давомнокӣ">Duration</label><input class="form-input" name="duration"></div>
+          <div><label class="form-label" data-en="Location" data-ru="Расположение" data-tj="Ҷойгиршавӣ">Location</label><input class="form-input" name="location"></div>
+          <div class="full"><label class="form-label" data-en="Description" data-ru="Описание" data-tj="Тавсиф">Description</label><textarea class="form-textarea" name="course_description" rows="2"></textarea></div>
+        </div>
+        <div class="teacher-sec">
+          <div class="teacher-label" data-en="👤 Teacher" data-ru="👤 Преподаватель" data-tj="👤 Муаллим">👤 Teacher</div>
+          <div class="course-grid">
+            <div><label class="form-label" data-en="Name" data-ru="Имя" data-tj="Ном">Name</label><input class="form-input" name="teacher_name"></div>
+            <div><label class="form-label" data-en="Phone" data-ru="Телефон" data-tj="Телефон">Phone</label><input class="form-input" name="teacher_phone"></div>
+            <div><label class="form-label" data-en="Social Media" data-ru="Соцсети" data-tj="Шабакаҳои иҷтимоӣ">Social Media</label><input class="form-input" name="teacher_social"></div>
+            <div><label class="form-label">LinkedIn</label><input class="form-input" name="teacher_linkedin"></div>
+          </div>
+        </div>
+        <div class="btn-row"><button type="submit" class="btn-primary" data-en="Add Course" data-ru="Добавить курс" data-tj="Илова кардан">Add Course</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-settings">
+    <div class="pw-section">
+      <h3 data-en="Change Password" data-ru="Изменить пароль" data-tj="Иваз кардани парол">Change Password</h3>
+      <form method="POST" action="/dashboard/change-password">
+        <div class="pw-grid">
+          <div class="form-group"><label class="form-label" data-en="Current Password" data-ru="Текущий пароль" data-tj="Пароли ҳозира">Current Password</label><input class="form-input" type="password" name="old_password" required></div>
+          <div class="form-group"><label class="form-label" data-en="New Password" data-ru="Новый пароль" data-tj="Пароли нав">New Password</label><input class="form-input" type="password" name="new_password" required minlength="6"></div>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top:12px" data-en="Change Password" data-ru="Изменить пароль" data-tj="Иваз кардан">Change Password</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+</script>
+{% endblock %}
